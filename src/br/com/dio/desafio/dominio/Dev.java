@@ -6,10 +6,15 @@ public class Dev {
     private String nome;
     private Set<Conteudo> conteudosInscritos = new LinkedHashSet<>();
     private Set<Conteudo> conteudosConcluidos = new LinkedHashSet<>();
+    private List<ProgressTracker> progressTrackers = new ArrayList<>();
 
     public void inscreverBootcamp(Bootcamp bootcamp){
         this.conteudosInscritos.addAll(bootcamp.getConteudos());
         bootcamp.getDevsInscritos().add(this);
+        
+        // Criar tracker de progresso para este bootcamp
+        ProgressTracker tracker = new ProgressTracker(this, bootcamp);
+        this.progressTrackers.add(tracker);
     }
 
     public void progredir() {
@@ -17,6 +22,11 @@ public class Dev {
         if(conteudo.isPresent()) {
             this.conteudosConcluidos.add(conteudo.get());
             this.conteudosInscritos.remove(conteudo.get());
+            
+            // Atualizar todos os trackers de progresso
+            for (ProgressTracker tracker : progressTrackers) {
+                tracker.atualizarProgresso();
+            }
         } else {
             System.err.println("Você não está matriculado em nenhum conteúdo!");
         }
@@ -35,6 +45,38 @@ public class Dev {
                 .stream()
                 .mapToDouble(Conteudo::calcularXp)
                 .sum();*/
+    }
+
+    public ProgressTracker getProgressTracker(Bootcamp bootcamp) {
+        return progressTrackers.stream()
+            .filter(tracker -> tracker.getBootcamp().equals(bootcamp))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public List<Certificado> gerarCertificados() {
+        List<Certificado> certificados = new ArrayList<>();
+        for (ProgressTracker tracker : progressTrackers) {
+            Certificado certificado = tracker.gerarCertificado();
+            if (certificado != null) {
+                certificados.add(certificado);
+            }
+        }
+        return certificados;
+    }
+
+    public void exibirRelatorioProgresso(Bootcamp bootcamp) {
+        ProgressTracker tracker = getProgressTracker(bootcamp);
+        if (tracker != null) {
+            System.out.println(tracker.gerarRelatorioProgresso());
+        } else {
+            System.out.println("Desenvolvedor não está inscrito neste bootcamp.");
+        }
+    }
+
+    public double calcularPorcentagemProgresso(Bootcamp bootcamp) {
+        ProgressTracker tracker = getProgressTracker(bootcamp);
+        return tracker != null ? tracker.calcularPorcentagemProgresso() : 0.0;
     }
 
 
@@ -60,6 +102,14 @@ public class Dev {
 
     public void setConteudosConcluidos(Set<Conteudo> conteudosConcluidos) {
         this.conteudosConcluidos = conteudosConcluidos;
+    }
+
+    public List<ProgressTracker> getProgressTrackers() {
+        return progressTrackers;
+    }
+
+    public void setProgressTrackers(List<ProgressTracker> progressTrackers) {
+        this.progressTrackers = progressTrackers;
     }
 
     @Override

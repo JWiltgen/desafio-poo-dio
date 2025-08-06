@@ -1,9 +1,11 @@
 import br.com.dio.desafio.dominio.Bootcamp;
+import br.com.dio.desafio.dominio.Certificado;
 import br.com.dio.desafio.dominio.Curso;
 import br.com.dio.desafio.dominio.Dev;
 import br.com.dio.desafio.dominio.Mentoria;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -37,12 +39,23 @@ public class Main {
         devCamila.setNome("Camila");
         devCamila.inscreverBootcamp(bootcamp);
         System.out.println("Conteúdos Inscritos Camila:" + devCamila.getConteudosInscritos());
+        
+        // Exibir progresso inicial
+        System.out.println("\n=== PROGRESSO INICIAL CAMILA ===");
+        System.out.printf("Progresso: %.1f%%\n", devCamila.calcularPorcentagemProgresso(bootcamp));
+        
         devCamila.progredir();
         devCamila.progredir();
         System.out.println("-");
         System.out.println("Conteúdos Inscritos Camila:" + devCamila.getConteudosInscritos());
         System.out.println("Conteúdos Concluídos Camila:" + devCamila.getConteudosConcluidos());
         System.out.println("XP:" + devCamila.calcularTotalXp());
+        
+        // Exibir progresso atualizado
+        System.out.printf("Progresso: %.1f%%\n", devCamila.calcularPorcentagemProgresso(bootcamp));
+        
+        // Exibir relatório detalhado
+        devCamila.exibirRelatorioProgresso(bootcamp);
 
         System.out.println("-------");
 
@@ -57,6 +70,26 @@ public class Main {
         System.out.println("Conteúdos Inscritos João:" + devJoao.getConteudosInscritos());
         System.out.println("Conteúdos Concluidos João:" + devJoao.getConteudosConcluidos());
         System.out.println("XP:" + devJoao.calcularTotalXp());
+        
+        // João concluiu o bootcamp! Vamos gerar o certificado
+        System.out.printf("Progresso João: %.1f%%\n", devJoao.calcularPorcentagemProgresso(bootcamp));
+        
+        // Exibir relatório do João
+        devJoao.exibirRelatorioProgresso(bootcamp);
+        
+        // Gerar certificados para devs que concluíram
+        System.out.println("\n=== CERTIFICADOS ===");
+        List<Certificado> certificadosJoao = devJoao.gerarCertificados();
+        if (!certificadosJoao.isEmpty()) {
+            for (Certificado cert : certificadosJoao) {
+                System.out.println(cert.gerarCertificado());
+            }
+        }
+        
+        List<Certificado> certificadosCamila = devCamila.gerarCertificados();
+        if (certificadosCamila.isEmpty()) {
+            System.out.println("Camila ainda não concluiu nenhum bootcamp.");
+        }
 
     }
 
